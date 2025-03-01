@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+#root {
+  font-family: Arial, Helvetica, sans-serif;
+}
+h1 {
+  font-weight: bolder;
+  font-size: larger;
+}
