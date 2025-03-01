@@ -37,7 +37,7 @@ function authReducer(state, action) {
         isAuthenticated: false,
         user: null,
         loading: false,
-        registerError: action.paylaod,
+        registerError: action.payload,
       };
     case "LOGIN_FAILURE":
       return {
@@ -83,8 +83,9 @@ export function AuthProvider({ children }) {
 
       dispatch({
         type: "REGISTER_FAILURE",
-        payload: errorMessage,
+        payload: error.response.data.message,
       });
+      console.log("Register Error:", registerError);
 
       return { success: false, error: errorMessage };
     }

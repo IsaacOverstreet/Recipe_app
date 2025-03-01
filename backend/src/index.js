@@ -8,7 +8,7 @@ import {
   getRecipeSummary,
   getFavouriteRecipesById,
 } from "./recipe-api.js";
-import routeAuth from "./routeAuth.js";
+import router from "./routeAuth.js";
 import passport from "passport";
 
 const port = 3000;
@@ -31,7 +31,7 @@ const db = new pg.Client({
 });
 
 db.connect();
-app.use("/recipes/auth", routeAuth);
+app.use("/recipes/auth", router);
 
 app.get("/api/recipes/search", async (req, res) => {
   const searchTerm = req.query.searchTerm;

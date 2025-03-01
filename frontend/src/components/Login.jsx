@@ -14,6 +14,10 @@ function Login({ onClickLogin }) {
   const { register, registerError, loading } = useAuth();
 
   function emailErrorHandle(email) {
+    if (!email) {
+      setEmail("");
+      return;
+    }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setEmailError("invalid email format");
@@ -23,6 +27,10 @@ function Login({ onClickLogin }) {
   }
 
   function passwordErrorHandling(password) {
+    if (!password) {
+      setPassword("");
+      return;
+    }
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(password)) {
       setPasswordError(
@@ -34,6 +42,10 @@ function Login({ onClickLogin }) {
   }
 
   function confirmPasswordErrrorHandling(password) {
+    if (!confirmPassword) {
+      setConfirmPassword("");
+      return;
+    }
     if (confirmPassword !== password) {
       setConfirmPasswordError("passsword doesnot match");
     } else {
@@ -47,6 +59,7 @@ function Login({ onClickLogin }) {
     const response = await register(email, password);
     if (!response.success) {
       alert(response.error);
+      console.log("Register Error:", registerError);
       return;
     }
 
@@ -101,7 +114,7 @@ function Login({ onClickLogin }) {
             >
               {loading ? "Registering..." : "Register"}
             </button>
-            {registerError && <p className="error">{registerError}</p>}
+            <p>{registerError && registerError}</p>
           </form>
           <p>
             already have account{" "}
