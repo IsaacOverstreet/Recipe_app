@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 
 import { useAuth } from "./authProvider";
+import { useNavigate } from "react-router-dom";
 
-function Login({ onClickLogin }) {
+function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -11,7 +12,9 @@ function Login({ onClickLogin }) {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [formType, setFormType] = useState("register");
-  const { register, registerError, loading } = useAuth();
+  const { register, login, registerError, loading, loginError } = useAuth();
+
+  const navigate = useNavigate();
 
   function emailErrorHandle(email) {
     if (!email) {
@@ -52,8 +55,8 @@ function Login({ onClickLogin }) {
       setConfirmPasswordError("");
     }
   }
-  //continue work from here
-  async function handleSubmit(e) {
+  // handle submit for registration
+  async function handleRegister(e) {
     e.preventDefault();
 
     const response = await register(email, password);
@@ -64,14 +67,31 @@ function Login({ onClickLogin }) {
     }
 
     console.log("User registered successfully:", response.user);
-    onClickLogin();
+    navigate("/main");
+  }
+
+  // handle submit for LogIn
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    const response = await login(email, password);
+    if (!response.success) {
+      alert(response.error);
+      console.log("login Error:", loginError);
+      return;
+    }
+    console.log("user succefully logged in", response.user);
+    navigate("/main");
   }
 
   return (
     <div>
       {formType === "register" ? (
         <div>
-          <form className="border flex flex-col gap-4" onSubmit={handleSubmit}>
+          <form
+            className="border flex flex-col gap-4"
+            onSubmit={handleRegister}
+          >
             <label htmlFor="Email">Email</label>
             {emailError && <p style={{ color: "red" }}>{emailError}</p>}
             <input
@@ -122,7 +142,7 @@ function Login({ onClickLogin }) {
           </p>
         </div>
       ) : (
-        <form className="border flex flex-col gap-4" onSubmit={handleSubmit}>
+        <form className="border flex flex-col gap-4" onSubmit={handleLogin}>
           <label htmlFor="Email">Email</label>
           {emailError && <p style={{ color: "red" }}>{emailError}</p>}
           <input

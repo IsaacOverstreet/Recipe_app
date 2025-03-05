@@ -61,6 +61,7 @@ function authReducer(state, action) {
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // Passport Local strategy for Registration
   async function register(email, password) {
     dispatch({ type: "REGISTER_REQUEST" });
 
@@ -90,10 +91,42 @@ export function AuthProvider({ children }) {
       return { success: false, error: errorMessage };
     }
   }
-  const { isAuthenticated, user, loading, registerError } = state;
+
+  // Passport Local strategy for Login
+  async function login(email, password) {
+    dispatch({ type: "LOGIN_REQUEST" });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/recipes/auth/register",
+        { email: email, password: password },
+        { withCredentials: true }
+      );
+
+      dispatch({ type: "LOGIN_SUCCESS", payload: response.data.user });
+      return { success: true, user: response.data.user };
+    } catch (error) {
+      console.log(error);
+      const errorMessage = error.response
+        ? error.response.data.message
+        : "Network error";
+      dispatch({ type: "LOGIN_FAILURE", payload: errorMessage });
+      return { success: false, payload: errorMessage };
+    }
+  }
+
+  const { isAuthenticated, user, loading, registerError, loginError } = state;
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, loading, register, registerError }}
+      value={{
+        isAuthenticated,
+        user,
+        loading,
+        register,
+        login,
+        registerError,
+        loginError,
+      }}
     >
       {children}
     </AuthContext.Provider>

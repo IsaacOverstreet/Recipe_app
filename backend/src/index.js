@@ -9,18 +9,27 @@ import {
   getFavouriteRecipesById,
 } from "./recipe-api.js";
 import router from "./routeAuth.js";
+import session from "express-session";
 import passport from "passport";
 
 const port = 3000;
 const app = express();
 const prismaClient = new PrismaClient();
+env.config();
+app.use(
+  session({
+    secret: process.env.YOUR_SECRET_KEY,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, maxAge: 1000 * 60 * 5 },
+  })
+);
 
 app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(express.json());
-app.use(cors());
-
-env.config();
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 const db = new pg.Client({
   user: process.env.PG_USER,
