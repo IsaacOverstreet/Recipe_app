@@ -1,6 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-
+import { Prisma } from "@prisma/client";
 import pg from "pg";
 import env from "dotenv";
 import authRoute from "./route/routeAuth.js";
