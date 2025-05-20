@@ -21,8 +21,6 @@ export async function searchRecipes(searchTerm, page) {
     offset: page * 10,
   };
 
-  console.log(url.href);
-
   try {
     const response = await axios.get(url, {
       params: params,
@@ -30,10 +28,10 @@ export async function searchRecipes(searchTerm, page) {
     });
 
     const result = response.data;
-    // console.log("result", result);
+
     return result;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
@@ -49,7 +47,7 @@ export async function getRecipeSummary(recipeId) {
     const response = await axios.get(url, { headers });
     return response.data;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 
@@ -72,6 +70,6 @@ export async function getFavouriteRecipesById(ids) {
 
     return { results: response };
   } catch (error) {
-    console.log(error.response.data);
+    console.error(error.response.data);
   }
 }

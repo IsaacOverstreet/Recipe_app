@@ -16,7 +16,10 @@ model User {
 
 model FavouriteRecipe {
   id       Int  @id @default(autoincrement())
-  recipeId Int  @unique
+  recipeId Int  
   userId   Int
   user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+
+  @@unique([userId,recipeId], name: "user_recipe_unique")
 }

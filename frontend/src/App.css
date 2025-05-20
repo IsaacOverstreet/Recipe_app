@@ -1,7 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Oregano:ital@0;1&family=Sansita+Swashed:wght@300..900&display=swap");
 @import "tailwindcss";
+@theme {
+  --font-Oregano: "Oregano", cursive;
+}
 
+html {
+  scroll-behavior: smooth;
+}
 #root {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif, Oregano;
 }
 h1 {
   font-weight: bolder;

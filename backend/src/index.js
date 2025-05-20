@@ -1,27 +1,36 @@
 import express from "express";
-import prisma, { PrismaClient } from "@prisma/client";
-import cors from "cors";
+import cookieParser from "cookie-parser";
+
 import pg from "pg";
 import env from "dotenv";
-import {
-  searchRecipes,
-  getRecipeSummary,
-  getFavouriteRecipesById,
-} from "./recipe-api.js";
-import router from "./routeAuth.js";
+import authRoute from "./route/routeAuth.js";
+import mainUIroute from "./route/mainUIroute.js";
 import session from "express-session";
-import passport from "passport";
+import passport from "./passportConfig.js";
+import isAuthenticated from "./middleWare/authMiddleware.js";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const port = 3000;
 const app = express();
-const prismaClient = new PrismaClient();
+app.use(cookieParser());
+
 env.config();
 app.use(
   session({
     secret: process.env.YOUR_SECRET_KEY,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 1000 * 60 * 5 },
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 1,
+    },
   })
 );
 
@@ -29,7 +38,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 const db = new pg.Client({
   user: process.env.PG_USER,
@@ -40,70 +48,29 @@ const db = new pg.Client({
 });
 
 db.connect();
-app.use("/recipes/auth", router);
 
-app.get("/api/recipes/search", async (req, res) => {
-  const searchTerm = req.query.searchTerm;
-  console.log(searchTerm);
-  const page = req.query.page || "1";
-  console.log(page);
-  const result = await searchRecipes(searchTerm, page);
-  console.log("result", result);
-  return res.json(result);
+app.use("/api", authRoute);
+app.use("/api/recipes", isAuthenticated, mainUIroute);
+
+app.use((err, req, res, next) => {
+  console.error("error", err);
+  res.status(500).json({ message: "server error", error: err.message });
 });
 
-app.get("/api/recipes/:recipeId/summary", async (req, res) => {
-  const recipeId = req.params.recipeId;
-  const result = await getRecipeSummary(recipeId);
-  return res.json(result);
-});
+// Serve React in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
-app.post("/api/recipes/favourite", async (req, res) => {
-  const recipeId = req.body.recipeId;
-  try {
-    const favouriteRecipe = await prismaClient.favouriteRecipe.create({
-      data: {
-        recipeId: recipeId,
-      },
-    });
-    return res.status(201).json(favouriteRecipe);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: "opps, something went wrong" });
-  }
-});
-
-app.get("/api/recipes/favourite", async (req, res) => {
-  try {
-    const recipes = await prismaClient.favouriteRecipe.findMany();
-    console.log("find", recipes);
-    const recipesIds = recipes.map((recipe) => recipe.recipeId);
-
-    console.log(recipesIds);
-
-    const favourites = await getFavouriteRecipesById(recipesIds);
-    return res.json(favourites);
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-app.delete("/api/recipes/favourite", async (req, res) => {
-  const recipeId = req.body.recipeId;
-  try {
-    await prismaClient.favouriteRecipe.delete({
-      where: {
-        recipeId: recipeId,
-      },
-    });
-
-    return res.status(204).send();
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: "opps, something went wrong" });
-  }
-});
-
+  app.get("/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../../frontend/dist/", "index.html"));
+  });
+}
 app.listen(port, () => {
   console.log(`server listening on port ${port}`);
+});
+
+// Clean up Prisma on shutdown
+process.on("SIGTERM", async () => {
+  await prisma.$disconnect();
+  process.exit(0);
 });
