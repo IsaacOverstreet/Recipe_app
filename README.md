@@ -1,1 +1,1 @@
-Recipe app that has a Nodejs backEnd and a React frontEnd, data is fetched from an external api (spoonacular.com). The recipe app has Authentications that is Passport local and Oauth, Also a postgresql Database. 
+Recipe app that has a Nodejs backEnd and a React frontEnd, data is fetched from an external api (spoonacular.com). The recipe app has Authentication 0Auth (local strategy and google strategy), Also a postgresql Database. 
