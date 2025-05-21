@@ -89,12 +89,22 @@ export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const navigate = useNavigate();
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Example Axios instance
+  const api = axios.create({
+    baseURL: API_BASE_URL,
+  });
+
   // FUNCTION CHECK IF THE SESSION IS VALIDATED
   async function sessionValidator() {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/api/recipes/session-validator",
-        { withCredentials: true }
+      const response = await api.get(
+        // 1///
+        "/api/recipes/session-validator",
+        {
+          withCredentials: true,
+        }
       );
 
       if (response.data.user) {
@@ -120,8 +130,9 @@ export function AuthProvider({ children }) {
     dispatch({ type: "REGISTER_REQUEST" });
 
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/register",
+      // 2///
+      const response = await api.post(
+        "/api/auth/register",
         {
           email: email,
           password: password,
@@ -152,8 +163,9 @@ export function AuthProvider({ children }) {
     dispatch({ type: "LOGIN_REQUEST" });
 
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/login",
+      //3//
+      const response = await api.post(
+        "/api/auth/login",
         { email: email, password: password },
         { withCredentials: true }
       );
@@ -175,10 +187,10 @@ export function AuthProvider({ children }) {
   async function logout() {
     try {
       dispatch({ type: "LOGOUT_REQUEST" });
-      const response = await axios.get(
-        "http://localhost:3000/api/auth/logout",
-        { withCredentials: true }
-      );
+      //4//
+      const response = await api.get("/api/auth/logout", {
+        withCredentials: true,
+      });
 
       localStorage.removeItem("user");
       sessionStorage.removeItem("user");

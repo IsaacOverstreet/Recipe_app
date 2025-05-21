@@ -117,10 +117,8 @@ function Login() {
   async function handleGoogleLogin() {
     try {
       dispatch({ type: "LOGIN_REQUEST" });
-      const response = await axios.get(
-        "http://localhost:3000/api/auth/google/url",
-        { withCredentials: true }
-      );
+      const newUrl = `${window.location.origin}/api/auth/google/url`;
+      const response = await axios.get(newUrl, { withCredentials: true });
       const result = response.data;
 
       const { url } = result;

@@ -10,6 +10,11 @@ router.post("/auth/register", registerUser);
 router.post("/auth/login", loginUser);
 router.get("/auth/logout", logout);
 
+// const redirect_uri =
+//   process.env.NODE_ENV === "production"
+//     ? "https://recipe-app-lhce.onrender.com/api/auth/google/callback"
+//     : `${process.env.BACKEND_URL}/api/auth/google/callback`;
+
 // FLEXIBLE APPROACH OF GETTING THE URL
 router.get("/auth/google/url", (req, res) => {
   try {
@@ -19,8 +24,9 @@ router.get("/auth/google/url", (req, res) => {
     // encode the state
     const state = {
       csrfToken,
-      redirect: req.query.redirect || "/mainUI",
+      redirect: req.query.redirect || "/main",
     };
+    console.log("🚀 ~ router.get ~ state:", state);
 
     const encodedState = Buffer.from(JSON.stringify(state)).toString("base64");
 
@@ -30,7 +36,6 @@ router.get("/auth/google/url", (req, res) => {
       secure: false, // HTTPS-only
       sameSite: "Lax", // Prevents CSRF
       maxAge: 3000 * 60 * 5,
-      domain: process.env.COOKIE_DOMAIN || "localhost", // Explicit domain
       path: "/", // Accessible across all paths
     });
 
@@ -55,9 +60,10 @@ router.get("/auth/google/url", (req, res) => {
     res.json({ url: authUrl });
   } catch (error) {
     console.error("google URL Generation error", error);
-    return res
-      .status(500)
-      .json({ success: false, error: "failed to generate authentication URL" });
+    return res.status(500).json({
+      success: false,
+      error: "failed to generate authentication URL",
+    });
   }
 });
 
@@ -73,15 +79,18 @@ router.get(
       }
 
       const stateString = Buffer.from(state, "base64").toString();
+      console.log("🚀 ~ stateString:", stateString);
       const decodedState = JSON.parse(stateString);
+      console.log("🚀 ~ decodedState:", decodedState);
 
       const cookieToken = req.cookies.csrf_token;
+      console.log("🚀 ~ cookieToken:", cookieToken);
 
       if (decodedState.csrfToken !== cookieToken) {
         throw new Error("Invalid csrf Token");
       }
 
-      req.session.redirectAfterAuth = decodedState.redirect || "/mainUI";
+      req.session.redirectAfterAuth = decodedState.redirect || "/main";
 
       res.clearCookie("csrf_token");
 

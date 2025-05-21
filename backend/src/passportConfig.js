@@ -5,6 +5,12 @@ import bcrypt from "bcrypt";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 const prismaClient = new PrismaClient();
+
+// const callbackURL =
+//   process.env.NODE_ENV === "production"
+//     ? "https://recipe-app-lhce.onrender.com/api/auth/google/callback"
+//     : `${process.env.BACKEND_URL}/api/auth/google/callback`;
+
 passport.use(
   new LocalStrategy(
     { usernameField: "email", passwordField: "password" },
@@ -36,7 +42,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/api/auth/google/callback",
+      callbackURL: `${process.env.BACKEND_URL}/api/auth/google/callback`,
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
       scope: ["profile", "email"],
     },

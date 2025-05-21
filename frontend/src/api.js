@@ -2,7 +2,7 @@
 import axios from "axios";
 
 export async function searchRecipes(query, page) {
-  const baseUrl = new URL("http://localhost:3000/api/recipes/search");
+  const baseUrl = new URL("/api/recipes/search", window.location.origin);
   baseUrl.searchParams.append("searchTerm", query);
   baseUrl.searchParams.append("page", page);
 
@@ -23,7 +23,10 @@ export async function searchRecipes(query, page) {
 }
 
 export async function getRecipeSummary(recipeId) {
-  const url = new URL(`http://localhost:3000/api/recipes/${recipeId}/summary`);
+  const url = new URL(
+    `/api/recipes/${recipeId}/summary`,
+    window.location.origin
+  );
 
   const response = await axios.get(url.href, {
     withCredentials: true, // Include cookies (session data)
@@ -36,7 +39,7 @@ export async function getRecipeSummary(recipeId) {
 }
 
 export async function getFavouriteRecipes() {
-  const url = new URL("http://localhost:3000/api/recipes/favourite");
+  const url = new URL("/api/recipes/favourite", window.location.origin);
   const response = await axios.get(url.href, {
     withCredentials: true, // Include cookies (session data)
   });
@@ -48,12 +51,12 @@ export async function getFavouriteRecipes() {
 }
 
 export async function addToFavourite(recipe) {
-  const url = new URL("http://localhost:3000/api/recipes/favourite");
+  const url = new URL("/api/recipes/favourite", window.location.origin);
   const body = {
     recipeId: recipe.id,
   };
 
-  const response = await axios.post(url, body, {
+  const response = await axios.post(url.href, body, {
     withCredentials: true, // Include cookies (session data)
   });
 
@@ -63,10 +66,10 @@ export async function addToFavourite(recipe) {
 }
 
 export async function removeFavouriteRecipe(recipe) {
-  const url = new URL("http://localhost:3000/api/recipes/favourite");
+  const url = new URL("/api/recipes/favourite", window.location.origin);
   const body = { recipeId: recipe.id };
 
-  const response = await axios.delete(url, {
+  const response = await axios.delete(url.href, {
     data: body,
     withCredentials: true,
   });
